@@ -25,26 +25,25 @@ module.exports = {
   
 deleteCat : async (req,res) => {
   try {
-   const deletedSubCat = await subCategoryModel.deleteOne({_id:req.params.id})
-   console.log("deletedSubCat._id",deletedSubCat._id)
-
-   await categoryModel.findByIdAndUpdate(subCategoryModel.category, {
+   const deletedSubCat = await subCategoryModel.findOneAndDelete({_id:req.params.id})
+ 
+   await categoryModel.findByIdAndUpdate(deletedSubCat.category, {
     $pull: {
       subcategories: deletedSubCat._id
-    }
+         }
   })
-  console.log("subCategoryModelcategory",subCategoryModel.category)
-
+ 
     res.status(200).json({message:'successfully deleted',data:deletedSubCat} )
 
 
-
-    
 
   } catch (error) {
     res.status(500).json({message:"error"+error })
   }
 },
+
+
+
   Allcategories: async (req,res) =>  {
 
     try {
