@@ -23,7 +23,7 @@ module.exports = {
 
   },
   
-deleteCat : async (req,res) => {
+deletesubCat : async (req,res) => {
   try {
    const deletedSubCat = await subCategoryModel.findOneAndDelete({_id:req.params.id})
  
@@ -44,10 +44,10 @@ deleteCat : async (req,res) => {
 
 
 
-  Allcategories: async (req,res) =>  {
+  Allsubcategories: async (req,res) =>  {
 
     try {
-        const allcat = await subCategoryModel.find()
+        const allcat = await subCategoryModel.find().populate({path:'category', select:'name'})
       res.status(200).json({message:"subcategories ", data:allcat})
 } catch (error) {
   res.status(500).json({message:"error"+error, data:error})
@@ -55,7 +55,19 @@ deleteCat : async (req,res) => {
 }
   },
 
-  updateCategory : async(req,res) => {
+  onesubCategory: async (req,res) =>  {
+
+    try {
+        const allcat = await subCategoryModel.findOne({_id: req.params.id}).populate({path: 'product'}).populate({path:'category', select:'name'})
+      res.status(200).json({message:"subcategories ", data:allcat})
+} catch (error) {
+  res.status(500).json({message:"error"+error, data:error})
+
+}
+  },
+
+
+  updatesubCategory : async(req,res) => {
     const id= req.params.id
     const newData = req.body
     try {
@@ -64,7 +76,9 @@ deleteCat : async (req,res) => {
         newData,
         { new: true }
       );
-
+        categoryModel.findByIdAndUpdate(req.body.category, {
+          $push: {subcategories:updatedsubcat}
+        })
       res.status(200).json({message:'sub category is updated ', data: updatedsubcat})
     } catch (error) {
       res.status(500).json({message:'error'+error,data:error})
