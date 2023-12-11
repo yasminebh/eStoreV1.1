@@ -1,15 +1,18 @@
 const mongoose = require ('mongoose')
 const nodemailer = require('nodemailer')
-const adminModel = require('../model/admin')
+const adminModel = require('../model/admin');
+const {verificationMail}  = require('../utils/nodemailer');
+const dotenv = require('dotenv').config()
+const {randomBytes} = require('crypto')
 
-const transporter = nodemailer.createTransport({
+/* const transporter = nodemailer.createTransport({
   host: process.env.HOST,
   port: process.env.NODEMAILERPORT,
   auth: {
       user: process.env.USER, // generated mailtrap user
       pass: process.env.PASS, // generated mailtrap password
   },
-});
+}); */
 {/* <a href="http://localhost:8080/auth/verify/${item.codeverify}">
 click here
 </a> */}
@@ -20,28 +23,12 @@ module.exports = {
   createAdmin: async(req, res) => {
         
     try {
-      const newAdmin = await new adminModel(req.body)
+      const codeverify = randomBytes(6).toString('hex')
+      const newAdmin = await new adminModel({...req.body, verificationCode: codeverify})
        console.log(newAdmin)
        await newAdmin.save()
 
-         await  transporter.sendMail({
-            from: "yasminebharzallah@gmail.com",
-            to: newAdmin.email,
-            subject: "hello" + newAdmin.name,
-            text: "mail de confirmation",
-            html: `<!DOCTYPE html>
-            <html lang="en">
-            <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>Document</title>
-            </head>
-            <body>
-            <h1> verify account</h1>
-            </body>
-            </html>
-            `,
-          });
+       verificationMail(newAdmin)
       res.status(200).json({success: true , message: "admin is added", data:newAdmin})
 
     } catch (error) {
