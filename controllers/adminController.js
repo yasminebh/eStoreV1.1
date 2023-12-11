@@ -1,22 +1,55 @@
 const mongoose = require ('mongoose')
-
+const nodemailer = require('nodemailer')
 const adminModel = require('../model/admin')
 
+const transporter = nodemailer.createTransport({
+  host: process.env.HOST,
+  port: process.env.NODEMAILERPORT,
+  auth: {
+      user: process.env.USER, // generated mailtrap user
+      pass: process.env.PASS, // generated mailtrap password
+  },
+});
+{/* <a href="http://localhost:8080/auth/verify/${item.codeverify}">
+click here
+</a> */}
+
+
 module.exports = {
+  
   createAdmin: async(req, res) => {
+        
     try {
       const newAdmin = await new adminModel(req.body)
-      console.log(newAdmin)
+       console.log(newAdmin)
        await newAdmin.save()
+
+         await  transporter.sendMail({
+            from: "yasminebharzallah@gmail.com",
+            to: newAdmin.email,
+            subject: "hello" + newAdmin.name,
+            text: "mail de confirmation",
+            html: `<!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Document</title>
+            </head>
+            <body>
+            <h1> verify account</h1>
+            </body>
+            </html>
+            `,
+          });
       res.status(200).json({success: true , message: "admin is added", data:newAdmin})
+
     } catch (error) {
       res.status(500).json({success:false, message:'error'+error, data:null})
     }
   },
 // get All Admins 
   getAdmin : async (req,res) => {
-    const Adminid = req.params.id
-
     try {
       const AdminData = await adminModel.find()
       if(!AdminData){
