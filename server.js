@@ -16,12 +16,14 @@ const subcategoryRouter= require('./routers/subCategoryRouter')
 const productRouter = require('./routers/productRouter')
 const adminRouter = require('./routers/adminRouter')
 const providerRouter = require('./routers/providerRouter')
+const userRouter = require('./routers/userRoute')
 
 app.use('/categories', categoryRouter)
 app.use('/subcategories', subcategoryRouter)
 app.use('/products', productRouter)
 app.use('/admin', adminRouter)
 app.use('/provider', providerRouter)
+app.use('/user', userRouter)
 
 
 app.get('/:img',(req, res ) => {

@@ -99,7 +99,7 @@ module.exports = {
 
     }
   },
-  updatePassword: async (req, res) => {
+/*   updatePassword: async (req, res) => {
     try {
       const newPassword = req.body.newPassword;
       console.log('new password',newPassword)
@@ -110,6 +110,7 @@ module.exports = {
       if (user) {
          try {
           await user.updatePassword(currentPassword, newPassword);
+          console.log('user password', user.password)
           res.status(200).json({ success: true, message: "Password updated successfully", data: user });
 
          } catch (updateError) {
@@ -118,14 +119,44 @@ module.exports = {
         }
     
       } else {
-       return console.log("User not found");
+       return    res.status(404).json({ success: false, message: "Admin not found", data: null });
+
       }
     } catch (error) {
       console.error("Error updating password:", error);
+      res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+
+    }
+
+  }, */
+  updatePassword: async (req, res) => {
+    try {
+      const newPassword = req.body.newPassword;
+      console.log('new password',newPassword)
+       const user = await adminModel.findById({ _id: req.params.id });
+      console.log('user password', user.password)
+      if (user) {
+         try {
+          await user.updatePassword(newPassword);
+          console.log('user password', user.password)
+          res.status(200).json({ success: true, message: "Password updated successfully", data: user });
+
+         } catch (updateError) {
+          console.error("Error updating password:", updateError);
+          res.status(500).json({ success: false, message: "Error updating password", error: updateError.message });
+        }
+    
+      } else {
+       return    res.status(404).json({ success: false, message: "Admin not found", data: null });
+
+      }
+    } catch (error) {
+      console.error("Error updating password:", error);
+      res.status(500).json({ success: false, message: "Internal server error", error: error.message });
+
     }
 
   },
-
   verifyAccount : async (req,res) => {
       try {
         const verificationCode = req.body.verificationCode

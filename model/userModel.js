@@ -24,6 +24,7 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
+      unique:true,
       validate: [validateEmail, "Enter a valid email!"], // Use the custom validator
     },
     phone: {
@@ -71,7 +72,7 @@ UserSchema.pre('save', async function  (next) {
  }
 }) 
 // to update only the password 
-/* UserSchema.methods.updatePassword = async function (newPassword) {
+ UserSchema.methods.updatePassword = async function (newPassword) {
   try {
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(newPassword, salt);
@@ -83,9 +84,9 @@ UserSchema.pre('save', async function  (next) {
     throw error;
   }
 };
- */
+ 
 
-UserSchema.methods.updatePassword = async function (currentPassword,newPassword) {
+/*  UserSchema.methods.updatePassword = async function (currentPassword,newPassword) {
 
   try {
     const isPasswordValid = await bcrypt.compare(currentPassword, this.password)
@@ -99,14 +100,18 @@ UserSchema.methods.updatePassword = async function (currentPassword,newPassword)
     }
 
     const salt = await bcrypt.genSalt(10);
-    const hashPassword = await bcrypt.hash(newPassword, salt);
-    this.password = hashPassword;
+    //const hashPassword = await bcrypt.hash(newPassword, salt);
+    this.password = await bcrypt.hash(newPassword, salt);
+
+  //  this.password = hashPassword;
     await this.save();
     return true;
    } catch (error) {
     console.error("Error updating password:", error);
     throw error;
   }
-};
+}; */
+ 
+
 
 module.exports= mongoose.model("user", UserSchema)
