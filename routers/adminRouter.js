@@ -10,5 +10,6 @@ route.get('/:id',adminController.getOneAdmin)
 route.delete('/:id',adminController.deleteAdmin)
 route.put('/:id',adminController.updateAdmin)
 route.put('/password/:id',adminController.updatePassword)
+route.put('/verifyaccount/:id',adminController.verifyAccount)
 
 module.exports = route;

@@ -101,28 +101,63 @@ module.exports = {
   },
   updatePassword: async (req, res) => {
     try {
-      const newPassword = req.body.password;
-      console.log(newPassword);
+      
+      const newPassword = req.body.newPassword;
+      console.log('new password',newPassword)
+      const currentPassword = req.body.currentPassword
+      console.log(currentPassword);
       const user = await adminModel.findById({ _id: req.params.id });
+      console.log('user password', user.password)
       if (user) {
-         await user.updatePassword(newPassword);
-        console.log("Password updated successfully");
-        res
-        .status(200)
-        .json({ success: true, message: "success ", data: user });
+         try {
+          await user.updatePassword(currentPassword, newPassword);
+          res.status(200).json({ success: true, message: "Password updated successfully", data: user });
+
+         } catch (updateError) {
+          console.error("Error updating password:", updateError);
+          res.status(500).json({ success: false, message: "Error updating password", error: updateError.message });
+        }
+    
       } else {
        return console.log("User not found");
       }
     } catch (error) {
       console.error("Error updating password:", error);
     }
+
   },
 
+  verifyAccount : async (req,res) => {
+      try {
+        const verificationCode = req.body.verificationCode
 
+        const admin = await adminModel.findOne({_id:req.params.id})
+        if (admin.verificationCode === verificationCode) {
+         const adminVerified= await adminModel.findByIdAndUpdate({_id:req.params.id}, {verified: true}, {new: true})
+          
+          return res.status(200).json({
+            success: true,
+            message: 'Account verified successfully',
+            admin: adminVerified,
+          });
+    
+        }else {
+           return res.status(401).json({
+            success: false,
+            message: 'Invalid verification code',
+          });
+        }
+    
 
-
-
-
+      } catch (error) {
+        console.error('Error verifying account:', error);
+        return res.status(500).json({
+          success: false,
+          message: 'Internal server error',
+        });
+    
+      }
+  }
 
 
 

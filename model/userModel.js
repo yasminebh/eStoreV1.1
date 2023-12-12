@@ -24,8 +24,7 @@ const UserSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      validate: [validateEmail, 'Enter a valid email!'], // Use the custom validator
-
+      validate: [validateEmail, "Enter a valid email!"], // Use the custom validator
     },
     phone: {
       type: Number,
@@ -33,14 +32,13 @@ const UserSchema = new mongoose.Schema(
     },
     verificationCode: {
       type: String,
-        },
-      verified: {
-        type: Boolean,
-        default: false
-      }
-
+    },
+    verified: {
+      type: Boolean,
+      default: false,
+    },
   },
-  
+
   { timestamps: true, baseOptions }
 );
 

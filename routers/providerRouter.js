@@ -4,6 +4,11 @@ const uploadFiles = require('../middlewares/uploadFiles')
 const route= require ("express").Router()
 
 
- route.get('/', providerController.getAllProvider)
- route.post('/', providerController.createProvider)
+route.post('/',providerController.createProvider)
+route.get('/',providerController.getProvider)
+route.get('/:id',providerController.getOneProvider)
+route.delete('/:id',providerController.deleteProvider)
+route.put('/:id',providerController.updateprovider)
+route.put('/password/:id',providerController.updatePassword)
+route.put('/verifyaccount/:id',providerController.verifyAccount)
 module.exports = route
