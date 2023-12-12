@@ -101,7 +101,6 @@ module.exports = {
   },
   updatePassword: async (req, res) => {
     try {
-      
       const newPassword = req.body.newPassword;
       console.log('new password',newPassword)
       const currentPassword = req.body.currentPassword
