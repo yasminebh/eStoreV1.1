@@ -1,5 +1,5 @@
 const mongoose = require("mongoose")
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcrypt')
 
 const baseOptions = {
   descriminator: 'itemTypes'
@@ -56,7 +56,7 @@ UserSchema.pre('save', async function  (next) {
   }
 })
 //the use of this is when you want to update the whole body  
- UserSchema.pre('findOneAndUpdate', async function(next) {
+  UserSchema.pre('findOneAndUpdate', async function(next) {
  try {
   const update = this.getUpdate()
   if(update.password) {
@@ -71,46 +71,55 @@ UserSchema.pre('save', async function  (next) {
   next(error)
  }
 }) 
-// to update only the password 
+ /// to update only the password 
  UserSchema.methods.updatePassword = async function (newPassword) {
   try {
+    console.log("New password received:", newPassword);
+
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(newPassword, salt);
-    this.password = hashPassword;
-    await this.save();
+   // this.password = hashPassword;
+   // await this.save();
+   await this.updateOne({ $set: { password: hashPassword } });
+
+    console.log("Password updated successfully");
+
     return true;
    } catch (error) {
     console.error("Error updating password:", error);
     throw error;
   }
-};
+}; 
  
-
-/*  UserSchema.methods.updatePassword = async function (currentPassword,newPassword) {
-
+/*  UserSchema.methods.updatePassword = async function(currentPass, newPass) {
   try {
-    const isPasswordValid = await bcrypt.compare(currentPassword, this.password)
-    if(!isPasswordValid) {
-      throw new Error('current password is incorrect')
-    }
-    const isNewPasswordSameAsCurrent = await bcrypt.compare(newPassword, this.password);
+    const isPasswordcorrect = await bcrypt.compare(currentPass, this.password
+      )
+      if(!isPasswordcorrect) {
+         throw new Error("password incorrect")
+      }
+      const isNewPasswordSameAsCurrent = await bcrypt.compare(newPass, this.password);
+      if (isNewPasswordSameAsCurrent) {
+        throw new Error("New password must be different from the current password");
+      }
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(newPass, salt);
+      //this.password = hashPassword;
+     // await this.save();
+      await this.updateOne({ $set: { password: hashPassword } });
 
-    if (isNewPasswordSameAsCurrent) {
-      throw new Error("New password must be different from the current password");
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    //const hashPassword = await bcrypt.hash(newPassword, salt);
-    this.password = await bcrypt.hash(newPassword, salt);
-
-  //  this.password = hashPassword;
-    await this.save();
-    return true;
-   } catch (error) {
+      return true;
+  
+  } catch (error) {
     console.error("Error updating password:", error);
     throw error;
+
   }
-}; */
+
+
+} */
+
+
  
 
 

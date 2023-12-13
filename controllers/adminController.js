@@ -3,19 +3,8 @@ const nodemailer = require('nodemailer')
 const adminModel = require('../model/admin');
 const {verificationMail}  = require('../utils/nodemailer');
 const dotenv = require('dotenv').config()
-const {randomBytes} = require('crypto')
-
-/* const transporter = nodemailer.createTransport({
-  host: process.env.HOST,
-  port: process.env.NODEMAILERPORT,
-  auth: {
-      user: process.env.USER, // generated mailtrap user
-      pass: process.env.PASS, // generated mailtrap password
-  },
-}); */
-{/* <a href="http://localhost:8080/auth/verify/${item.codeverify}">
-click here
-</a> */}
+const {randomBytes} = require('crypto');
+const { join } = require('path');
 
 
 module.exports = {
@@ -98,18 +87,19 @@ module.exports = {
       return res.status(500).json({message:'error'+error, data:null})
 
     }
-  },
+  }, 
 /*   updatePassword: async (req, res) => {
     try {
-      const newPassword = req.body.newPassword;
-      console.log('new password',newPassword)
       const currentPassword = req.body.currentPassword
       console.log(currentPassword);
+
+      const newPassword = req.body.newPassword;
+      console.log('new password',newPassword)
       const user = await adminModel.findById({ _id: req.params.id });
-      console.log('user password', user.password)
-      if (user) {
+       if (user) {
          try {
           await user.updatePassword(currentPassword, newPassword);
+          await user.save()
           console.log('user password', user.password)
           res.status(200).json({ success: true, message: "Password updated successfully", data: user });
 
@@ -119,7 +109,9 @@ module.exports = {
         }
     
       } else {
-       return    res.status(404).json({ success: false, message: "Admin not found", data: null });
+        res
+         .status(404)
+         .json({ success: false, message: "admin not found", data: null });
 
       }
     } catch (error) {
@@ -128,10 +120,13 @@ module.exports = {
 
     }
 
-  }, */
-  updatePassword: async (req, res) => {
+  },  
+ */
+
+  /*   updatePassword: async (req, res) => {
     try {
       const newPassword = req.body.newPassword;
+      
       console.log('new password',newPassword)
        const user = await adminModel.findById({ _id: req.params.id });
       console.log('user password', user.password)
@@ -157,13 +152,34 @@ module.exports = {
     }
 
   },
-  verifyAccount : async (req,res) => {
+ */  
+
+  updatePassword: async (req, res) => {
+    try {
+      const newPassword = req.body.password;
+      console.log(newPassword);
+      const user = await adminModel.findById({ _id: req.params.id });
+      if (user) {
+         await user.updatePassword(newPassword);
+        console.log("Password updated successfully");
+        res
+        .status(200)
+        .json({ success: true, message: "success ", data: user });
+      } else {
+       return console.log("User not found");
+      }
+    } catch (error) {
+      console.error("Error updating password:", error);
+    }
+  },
+ 
+/*   verifyAccount : async (req,res) => {
       try {
         const verificationCode = req.body.verificationCode
 
         const admin = await adminModel.findOne({_id:req.params.id})
         if (admin.verificationCode === verificationCode) {
-         const adminVerified= await adminModel.findByIdAndUpdate({_id:req.params.id}, {verified: true}, {new: true})
+         const adminVerified= await adminModel.findByIdAndUpdate({_id:req.params.id}, {verified: true, verificationCode: undefined}, {new: true})
           
           return res.status(200).json({
             success: true,
@@ -187,8 +203,7 @@ module.exports = {
         });
     
       }
-  }
-
+  } */
 
 
 }

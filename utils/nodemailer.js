@@ -29,10 +29,11 @@ module.exports  = {
         <title>Document</title>
       </head>
       <body>
-      <h1> verify account</h1>
-      <a href="http://localhost:5000/auth/verify/${newAdmin.verificationCode}">
+      <h1> hello ${newAdmin.fullName} please verify your account</h1>
+      <a href="http://localhost:5000/user/verifyaccount/${newAdmin.verificationCode}">
         click here
       </a> 
+
       </body>
       </html>
       `,

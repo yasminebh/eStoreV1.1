@@ -98,7 +98,11 @@ module.exports = {
 
     }
   },
-  updatePassword: async (req, res) => {
+
+
+
+  
+/*   updatePassword: async (req, res) => {
     try {
       const newPassword = req.body.newPassword;
       const currentPassword = req.body.currentPassword
@@ -122,7 +126,7 @@ module.exports = {
     }
 
   },
-
+ */
   verifyAccount : async (req,res) => {
       try {
         const verificationCode = req.body.verificationCode
