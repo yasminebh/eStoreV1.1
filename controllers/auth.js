@@ -71,7 +71,6 @@ login: async (req, res) => {
 
     try {
       const user = await userModel.findOne({email})
-      console.log('Stored Password:', user.password);
 
       if (!user) {
         return next(errorHandler(404, 'User not found'));
@@ -149,7 +148,16 @@ login: async (req, res) => {
   }, */
 
 
-// verify Account
+//logout
+
+logout : async (req,res,next) => {
+  try {
+    res.clearCookie('token')
+    res.status(200).json("you're logged out ")
+  } catch (error) {
+    next(error)
+  }
+}
   
 
 };

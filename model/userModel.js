@@ -74,8 +74,11 @@ UserSchema.pre('save', async function (next) {
 });
 
 //the use of this is when you want to update the whole body  
-  UserSchema.pre('findOneAndUpdate', async function(next) {
+/*   UserSchema.pre('findOneAndUpdate', async function(next) {
  try {
+  if (!this.isModified('password')) {
+    return next();
+  }
   const update = this.getUpdate()
   if(update.password) {
     const salt = await bcrypt.genSalt(10)
@@ -89,7 +92,32 @@ UserSchema.pre('save', async function (next) {
   next(error)
  }
 }) 
- /// to update only the password 
+
+
+
+ */ 
+
+
+UserSchema.pre('findOneAndUpdate', async function(next) {
+  try {
+    const update = this.getUpdate();
+
+    // Check if the password field is being modified
+    if (update.password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(update.password, salt);
+      
+      // Set the updated password in the database
+      this.update({}, { $set: { password: hashPassword } });
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+/// to update only the password 
  UserSchema.methods.updatePassword = async function (newPassword) {
   try {
     console.log("New password received:", newPassword);

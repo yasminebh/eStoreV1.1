@@ -127,35 +127,4 @@ module.exports = {
 
   },
  */
-  verifyAccount : async (req,res) => {
-      try {
-        const verificationCode = req.body.verificationCode
-
-        const provider = await providerModel.findOne({_id:req.params.id})
-        if (provider.verificationCode === verificationCode) {
-          const verifiedProvider = await providerModel.findByIdAndUpdate({_id:req.params.id}, {verified: true}, {new: true})
-          
-          return res.status(200).json({
-            success: true,
-            message: 'Account verified successfully',
-            provider: verifiedProvider,
-          });
-    
-        }else {
-           return res.status(401).json({
-            success: false,
-            message: 'Invalid verification code',
-          });
-        }
-    
-
-      } catch (error) {
-        console.error('Error verifying account:', error);
-        return res.status(500).json({
-          success: false,
-          message: 'Internal server error',
-        });
-    
-      }
-  }  
 }

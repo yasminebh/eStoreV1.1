@@ -1,6 +1,7 @@
 const express = require("express");
 const connectedToDB = require("./db");
 const path = require('path');
+const cookieParser = require('cookie-parser')
 
 const dotenv = require('dotenv').config()
 
@@ -10,6 +11,8 @@ connectedToDB()
 const app = express()
 
 app.use(express.json())
+
+app.use(cookieParser())
 
 
 const categoryRouter= require('./routers/categroyRouter')
