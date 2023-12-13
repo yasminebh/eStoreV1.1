@@ -1,5 +1,6 @@
 const express = require("express");
 const connectedToDB = require("./db");
+const path = require('path');
 
 const dotenv = require('dotenv').config()
 
@@ -25,6 +26,9 @@ app.use('/admin', adminRouter)
 app.use('/provider', providerRouter)
 app.use('/user', userRouter)
 
+
+//images
+app.use('/img', express.static(path.join(__dirname, 'img')));
 
 app.get('/:img',(req, res ) => {
   res.sendFile(__dirname+ '/my-uploads/'+ req.params.img)

@@ -45,7 +45,7 @@ const UserSchema = new mongoose.Schema(
 
 
 
-UserSchema.pre('save', async function  (next) {
+/* UserSchema.pre('save', async function  (next) {
   try {
     const salt = await bcrypt.genSalt(10)
     const hashPassword = await bcrypt.hash(this.password, salt)
@@ -55,6 +55,24 @@ UserSchema.pre('save', async function  (next) {
     next(error)
   }
 })
+ */
+
+UserSchema.pre('save', async function (next) {
+  try {
+    // Check if the password is already hashed
+    if (!this.isModified('password')) {
+      return next();
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashPassword = await bcrypt.hash(this.password, salt);
+    this.password = hashPassword;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 //the use of this is when you want to update the whole body  
   UserSchema.pre('findOneAndUpdate', async function(next) {
  try {
