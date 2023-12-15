@@ -3,52 +3,31 @@ const bcrypt = require('bcrypt')
 const { join } = require('path');
 const jwt = require('jsonwebtoken')
 const errorHandler = require('../utils/error');
+//const { access } = require('fs');
+const dotenv = require('dotenv').config()
 
+
+
+const accessKey = process.env.token
+const refreshKey = process.env.rToken
+let refreshTokensArr = []
+let revokedTokens = [];
+
+//
+
+const generateAccessToken = (user) => {
+  return  jwt.sign({id: user._id}, accessKey, {expiresIn:"30m"})
+
+}
+const gererateRefreshToken = (user) => {
+  return  jwt.sign({id: user._id}, refreshKey, {expiresIn:"30m"})
+}
 module.exports = {
-/* 
-login: async (req, res) => {
-    const {email, password:userPassword}= req.body
-    try {
-      const user = await userModel.findOne({ email });
-      if (!user) {
-        return res.status(404).json({ message: "User not found", data: null });
-      } 
-        const correct = await bcrypt.compare(user.password,userPassword);
-        if (!correct) {
-          return res
-            .status(400)
-            .json({ message: "Password is incorrect", success: false });
-        } 
-           if (!user.verified) {
-            return res
-              .status(409)
-              .json({ message: "User not verified", data: null });
-            }
 
-          const token = jwt.sign({id: user._id}, process.env.JWT_SECRET)
-          const {password, ...others} = user._doc
-          res
-            .cookie("token", token, {
-              httpOnly: true,
-              expires: new Date(Date.now() + 24 * 60 * 60 *1000),
-            })
-            .status(202)
-            .json({ message: "Logged in", success: true, data: others });
-        
-      
-    } catch (error) {
-      console.error("Error during login:", error);
-      return res.status(500).json({
-        message: "An error occurred during login.",
-        error: error.message,
-        success: false,
-      });
-    }
-  }, */
+
   verifyAccount : async (req,res) => {
     try {
       const verificationCode = req.params.verificationCode
-
       const user = await userModel.findOne({verificationCode})
       user.verificationCode = undefined
       user.verified = true
@@ -65,7 +44,7 @@ login: async (req, res) => {
    */
     }
 },
-  login: async ( req , res,next) => {
+  /* login: async ( req , res,next) => {
     const {email, password:userPassword}= req.body
     console.log('Entered Password:', userPassword);
 
@@ -96,68 +75,135 @@ login: async (req, res) => {
         .status(202)
         .json({ message: "you re logged in " ,data:others});
 
-/*        if (!user.verified) {
+     } catch (error) {
+      next(error)
+    }
+  }, */
+
+  login: async ( req , res,next) => {
+    const {email, password:userPassword}= req.body
+    console.log('Entered Password:', userPassword);
+
+    try {
+      const user = await userModel.findOne({email})
+
+      if (!user) {
+        return next(errorHandler(404, 'User not found'));
+      }
+      const isCorrect = await bcrypt.compare(userPassword , user.password)
+      console.log('Password Comparison Result:', isCorrect);
+
+      if(!isCorrect) {
+        return next(errorHandler(401, 'invalid password'))
+      }  
+      if (!user.verified) {
         return res
           .status(409)
           .json({ message: "User not verified", data: null });
         }
- */    } catch (error) {
+     
+        const access_Token = generateAccessToken(user)
+        const refresh_Token = gererateRefreshToken(user)
+        console.log("1",refreshTokensArr)
+        refreshTokensArr.push(refresh_Token)
+
+    // Remove the access token from the list of revoked tokens (if it was there)
+    revokedTokens = revokedTokens.filter((token) => token !== access_Token); 
+
+console.log("revoled",revokedTokens)
+        console.log("2",refreshTokensArr)
+        res
+        .status(202)
+        .json({ message: "you re logged in " ,data:user , accessToken: access_Token, refreshToken: refresh_Token});
+
+     } catch (error) {
       next(error)
     }
   },
 
 
 
-  /*   login: async (req,res) => {
- 
-    try {
-      const user = await userModel.findOne({ email: req.body.email });
-      console.log("Email in request:",  req.body.email);
-    
-       if (!user) {
-        return res.status(404).json({ message: "user not found", data: null });
-       }
-      else {
-       
-        const correct = await bcrypt.compare(req.body.password, user.password);
-        console.log(req.body.password);
-        console.log(user.password)
-        console.log("correct:", correct)
-        if (!correct) {
-          return res
-            .status(400)
-            .json({ message: "password is incorrect", success: false });
-        } else {
-          if (user.verified === false) {
-            return res.status(409).json({ message: "user not verified", data: null });
-          }  
-          return res
-            .status(200)
-            .json({ message: "logged in", success: true, data: user });
-        }
-      }
-    }  catch (error) {
-      console.error("Error during login:", error);
-      return res.status(500).json({
-        message: "An error occurred during login.",
-        error: error.message,
-        success: false,
-      });
-    }
-    
-  }, */
-
-
 //logout
 
-logout : async (req,res,next) => {
+/* logout: async (req, res, next ) => {
+  try {
+    const refreshToken = req.body.refresh_Token
+    console.log('first:' ,refreshTokensArr)
+    refreshTokensArr=await  refreshTokensArr.filter((token)=> {
+      return token !== refreshToken
+    })
+    console.log('after:' ,refreshTokensArr)
+
+    res.status(200).json("you're logged out")
+  } catch (error) {
+    next(error)
+  }
+} */
+
+/*  logout: async (req, res) => {
+  try {
+      let refreshtoken = req.body.refresh_token;
+
+      if (!refreshtoken) {
+        return res.status(400).json({
+          message: "Refresh token not provided",
+        });
+      }
+  
+
+      refreshTokensArr = refreshTokensArr.filter((token) => token !== refreshtoken);
+    // Add the authentication token to the list of revoked tokens
+    revokedTokens.push(req.headers["authorization"]);
+      console.log("after logout:", refreshTokensArr);
+      res.status(200).json({
+          message: "Déconnexion réussie",
+      });
+  } catch (error) {
+      res.status(500).json({
+          message: "Erreur lors de la déconnexion",
+          error: error.message,
+      });
+  }
+ }
+ */
+ logout: async (req, res) => {
+  try {
+    const refreshToken = req.body.refresh_token;
+
+    // Check if refresh_token is provided
+    if (!refreshToken) {
+      return res.status(400).json({
+        message: 'Refresh token not provided',
+      });
+    }
+
+    // Remove the refresh token from the array
+    refreshTokensArr = refreshTokensArr.filter((token) => token !== refreshToken);
+
+    // Add the authentication token to the list of revoked tokens
+    revokedTokens.push(req.headers['authorization']);
+
+    console.log('after logout:', refreshTokensArr);
+    res.status(200).json({
+      message: 'Déconnexion réussie',
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Erreur lors de la déconnexion',
+      error: error.message,
+    });
+  }
+}
+ 
+
+/* logout : async (req,res,next) => {
   try {
     res.clearCookie('token')
     res.status(200).json("you're logged out ")
   } catch (error) {
     next(error)
   }
-}
+} */
   
-
+ 
 };

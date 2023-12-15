@@ -24,6 +24,8 @@ module.exports = {
       res.status(500).json({success:false, message:'error'+error, data:null})
     }
   },
+
+  
 // get All Admins 
   getAdmin : async (req,res) => {
     try {

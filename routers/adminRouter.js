@@ -11,6 +11,7 @@ route.get('/:id',adminController.getOneAdmin)
 route.delete('/:id',adminController.deleteAdmin)
 
 //verify admin
+//route.put('/:id', adminController.updateAdmin)
 route.put('/:id',verifyToken, adminController.updateAdmin)
 
 
