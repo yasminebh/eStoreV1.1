@@ -5,6 +5,18 @@ const jwt = require('jsonwebtoken')
 const errorHandler = require('../utils/error');
 //const { access } = require('fs');
 const dotenv = require('dotenv').config()
+const nodemailer = require('nodemailer')
+
+const {updatePassword} = require('../model/userModel')
+
+const transporter = nodemailer.createTransport({
+  host: process.env.HOST,
+  port: process.env.NODEMAILERPORT,
+  auth: {
+      user: process.env.USER, // generated mailtrap user
+      pass: process.env.PASS, // generated mailtrap password
+  }
+});
 
 
 
@@ -22,6 +34,7 @@ const generateAccessToken = (user) => {
 const gererateRefreshToken = (user) => {
   return  jwt.sign({id: user._id}, refreshKey, {expiresIn:"30m"})
 }
+
 module.exports = {
 
 
@@ -108,7 +121,7 @@ module.exports = {
         refreshTokensArr.push(refresh_Token)
 
     // Remove the access token from the list of revoked tokens (if it was there)
-    revokedTokens = revokedTokens.filter((token) => token !== access_Token); 
+     revokedTokens = revokedTokens.filter((token) => token !== access_Token); 
 
 console.log("revoled",revokedTokens)
         console.log("2",refreshTokensArr)
@@ -166,7 +179,7 @@ console.log("revoled",revokedTokens)
   }
  }
  */
- logout: async (req, res) => {
+/*  logout: async (req, res) => {
   try {
     const refreshToken = req.body.refresh_token;
 
@@ -181,6 +194,7 @@ console.log("revoled",revokedTokens)
     refreshTokensArr = refreshTokensArr.filter((token) => token !== refreshToken);
 
     // Add the authentication token to the list of revoked tokens
+   // revokedTokens.push(req.headers['authorization']);
     revokedTokens.push(req.headers['authorization']);
 
     console.log('after logout:', refreshTokensArr);
@@ -193,8 +207,121 @@ console.log("revoled",revokedTokens)
       error: error.message,
     });
   }
-}
+}, */
+
+logout: async (req, res) => {
+  try {
+    const refreshToken = req.body.refresh_token;
+    const accessToken = req.headers['authorization'];
+
+    // Check if refresh_token is provided
+    if (!refreshToken || !accessToken) {
+      return res.status(400).json({
+        message: 'Refresh token or access token not provided',
+      });
+    }
+
+    // Remove the refresh token from the array
+    refreshTokensArr = refreshTokensArr.filter((token) => token !== refreshToken);
+
+    // Add the access token to the list of revoked tokens
+    revokedTokens.push(accessToken);
+
+    console.log('after logout:', refreshTokensArr);
+    res.status(200).json({
+      message: 'Déconnexion réussie',
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: 'Erreur lors de la déconnexion',
+      error: error.message,
+    });
+  }
+},
+
+
+forgetPassword: async(req,res, next) => {
+  try {
+    const userEmail = req.body.email
+
+    const userData = await userModel.findOne({email: userEmail})
+
+    if(!userData) {
+      return  next(errorHandler(404, "user not found"))
+    }
+
+    const resetT = jwt.sign({_id: userData._id}, accessKey, {expiresIn: "1m"})
+    await userModel.findOneAndUpdate({email: userEmail}, {resetToken: resetT}, {new: true}) 
+   //sending mail
+    transporter.sendMail({
+      from: "yasminebharzallah@gmail.com",
+      to: userData.email,
+      subject: "hello" + userData.fullName,
+      text: "reset mail",
+      html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+      </head>
+      <body>
+      <h1> hello ${userData.fullName} reset your password </h1>
+      <a href="http://localhost:5000/user/resetPassword/${resetT}">
+        click here
+      </a> 
+
+      </body>
+      
+      </html>
+      `,
+    }, (error, data) => {
+      if (error) {
+        console.log(error)
+      } else {
+        console.log(data)
+      }
+    })
+
+      res.status(200).json({success: true , message: "check your email" })
+
+
+  } catch (error) {
+    
+    next (error)
+  }
+  
+},
+
+ resetPassword : async (req, res ) => {
+   try {
+     jwt.verify(req.params.token, accessKey, async (error) => {
+      if (error){
+        res.status(400).json({ message: "token expired" });
+      }  
+   
+      const user = await userModel.findOne({resetToken: req.params.token})
+      console.log(user)
+      
+/*       const salt = await bcrypt.genSalt(10)
+      const newPassword = await bcrypt.hash(req.body.password, salt)
+      
+ */
+      const newPassword = await req.body.password
+      user.password = newPassword
+      user.resetToken = undefined
+     user.save()
+
+    return res.status(200).json({message: "password updated"})
+      
  
+    }) 
+   } catch (error) {
+    res.status(500).json({message:"error"+error})
+   } 
+  
+
+ }
 
 /* logout : async (req,res,next) => {
   try {

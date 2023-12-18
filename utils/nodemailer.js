@@ -19,7 +19,7 @@ module.exports  = {
     transporter.sendMail({
       from: "yasminebharzallah@gmail.com",
       to: newAdmin.email,
-      subject: "hello" + newAdmin.name,
+      subject: "hello" + newAdmin.fullName,
       text: "mail de confirmation",
       html: `<!DOCTYPE html>
       <html lang="en">
@@ -37,9 +37,32 @@ module.exports  = {
       </body>
       </html>
       `,
-    });}
+    });},
 
-
+    forgetPasswordMail:  (newAdmin) => {
+      transporter.sendMail({
+        from: "yasminebharzallah@gmail.com",
+        to: newAdmin.email,
+        subject: "hello" + newAdmin.name,
+        text: "reset mail",
+        html: `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Document</title>
+        </head>
+        <body>
+        <h1> hello ${newAdmin.fullName} reset your password </h1>
+        <a href="http://localhost:5000/user/resetPassword/${newAdmin.resetToken}">
+          click here
+        </a> 
+  
+        </body>
+        </html>
+        `,
+      });}
+  
 
 
 
