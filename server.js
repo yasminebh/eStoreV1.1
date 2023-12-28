@@ -4,11 +4,12 @@ const path = require('path');
 const cookieParser = require('cookie-parser')
 
 const dotenv = require('dotenv').config()
-
+const cors = require('cors')
 connectedToDB()
 
 
 const app = express()
+app.use(cors())
 
 app.use(express.json())
 
@@ -21,6 +22,9 @@ const productRouter = require('./routers/productRouter')
 const adminRouter = require('./routers/adminRouter')
 const providerRouter = require('./routers/providerRouter')
 const userRouter = require('./routers/userRoute')
+const customerRouter = require('./routers/customerRouter')
+const cartRouter = require('./routers/cartRouter')
+const orderRouter = require('./routers/orderRouter')
 
 app.use('/categories', categoryRouter)
 app.use('/subcategories', subcategoryRouter)
@@ -28,6 +32,9 @@ app.use('/products', productRouter)
 app.use('/admin', adminRouter)
 app.use('/provider', providerRouter)
 app.use('/user', userRouter)
+app.use('/customer', customerRouter)
+app.use('/cart', cartRouter)
+app.use('/order', orderRouter)
 
 
 //images

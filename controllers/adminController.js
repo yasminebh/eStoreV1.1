@@ -166,7 +166,7 @@ module.exports = {
         console.log("Password updated successfully");
         res
         .status(200)
-        .json({ success: true, message: "success ", data: user });
+        .json({ success: true, message: "success " });
       } else {
        return console.log("User not found");
       }

@@ -18,8 +18,6 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-
-
 const accessKey = process.env.token
 const refreshKey = process.env.rToken
 let refreshTokensArr = []
@@ -47,7 +45,7 @@ module.exports = {
       await user.save()
       return res
       .sendFile(join(__dirname+"../../utils/validateEmail.html"))
-     
+
     } catch (error) {
        res.sendFile(join(__dirname+"../../utils/errorPage.html"))
       /* return res.status(500).json({

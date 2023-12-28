@@ -3,7 +3,7 @@ const subCategoryModel = require('../model/subCategory')
 
 const categoryModel = require("../model/categoryModel")
 const subCategory = require('../model/subCategory')
-
+const productModel = require('../model/productModel')
 module.exports = {
   create: async (req,res)=> {
     
@@ -32,7 +32,16 @@ deletesubCat : async (req,res) => {
       subcategories: deletedSubCat._id
          }
   })
+ /*   await productModel.findByIdAndUpdate(deletedSubCat.product, {
+     $pull: {
+       subCategorie: deletedSubCat._id,
+     },
+   }); */
  
+    await productModel.updateMany(
+      { subCategorie: deletedSubCat._id },
+      { $unset: { subCategorie: 1 } }
+    );
     res.status(200).json({message:'successfully deleted',data:deletedSubCat} )
 
 
@@ -47,7 +56,7 @@ deletesubCat : async (req,res) => {
   Allsubcategories: async (req,res) =>  {
 
     try {
-        const allcat = await subCategoryModel.find().populate({path:'category', select:'name'})
+        const allcat = await subCategoryModel.find().populate({path:'category', select:'name'}).populate('product')
       res.status(200).json({message:"subcategories ", data:allcat})
 } catch (error) {
   res.status(500).json({message:"error"+error, data:error})

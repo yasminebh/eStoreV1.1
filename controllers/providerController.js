@@ -1,4 +1,5 @@
 
+const productModel = require('../model/productModel');
 const providerModel = require('../model/providerModel')
 const {verificationMail}  = require('../utils/nodemailer');
 const {randomBytes} = require('crypto')
@@ -26,8 +27,8 @@ module.exports = {
   getAllProvider: async (req,res) =>  {
 
     try {
-        const Providerdata = await providerModel.find()
-        if (Providerdata.length ===0) {
+        const Providerdata = await providerModel.find().populate({path:'products'})
+        if (Providerdata.length === 0) {
           return res.status(404).json({ message:"there's no provider"})
         }
       res.status(200).json({message:"Providerdata ", data:Providerdata})
@@ -35,25 +36,14 @@ module.exports = {
   res.status(500).json({message:"error"+error, data:error})
 }
   },
-  getProvider : async (req,res) => {
-    try {
-      const providerData = await providerModel.find()
-      if(!providerData){
-        return res.status(404).json({message:'provider not found' , data:null})
-      }
-      return res.status(200).json({message:'provider is found', data:providerData})
-    } catch (error) {
-      return res.status(500).json({message:'error'+error, data:null})
-    }
-
-  },
-
+  
+ 
   // Get One Admin 
   getOneProvider : async (req,res) => {
     const providerid = req.params.id
 
     try {
-      const providerData = await providerModel.findOne({_id: providerid})
+      const providerData = await providerModel.findOne({_id: providerid}).populate('products')
       if(!providerData){
         return res.status(404).json({message:'provider not found' , data:null})
       }
@@ -72,6 +62,8 @@ module.exports = {
       if(!deleteAd) {
         return res.status(404).json({message:'provider not found', data:null})
       }
+     
+
      return res.status(200).json({message:'provider deleted', data:deleteAd})
     } catch (error) {
       return res.status(500).json({message:'error'+error, data:null})
@@ -86,10 +78,12 @@ module.exports = {
        
       const updateData = req.body
 
-      const updatedprovider = await providerModel.findByIdAndUpdate(
+      const updatedprovider = await providerModel.updateOne(
         { _id: req.params.id },
         updateData, 
-        {new:true}
+        {runValidators: true},
+        {new:true},
+        
       );
       return res.status(201).json({message:'provider updated', data:updatedprovider})
 
@@ -100,7 +94,24 @@ module.exports = {
   },
 
 
-
+  updatePassword: async (req, res) => {
+    try {
+      const newPassword = req.body.password;
+      console.log(newPassword);
+      const user = await providerModel.findById({ _id: req.params.id });
+      if (user) {
+         await user.updatePassword(newPassword);
+        console.log("Password updated successfully");
+        res
+        .status(200)
+        .json({ success: true, message: "success ",  });
+      } else {
+       return console.log("User not found");
+      }
+    } catch (error) {
+      console.error("Error updating password:", error);
+    }
+  },
   
 /*   updatePassword: async (req, res) => {
     try {

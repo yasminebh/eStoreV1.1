@@ -1,6 +1,9 @@
 const mongoose = require('mongoose')
 const user = require('./userModel')
+
+
 const customerSchema = new mongoose.Schema({
+  orders: [{type: mongoose.Types.ObjectId, ref: "order"}],
   CIN : {
     type: String,
     required: true,
@@ -13,6 +16,10 @@ const customerSchema = new mongoose.Schema({
   address: {
     type: String,
     required: true
+  },
+  image: {
+    type: String,
+    required: [true, "image is required"]
   }
 
 });

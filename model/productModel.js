@@ -1,15 +1,17 @@
+const mongoose = require("mongoose");
 
-
-const  mongoose = require('mongoose')
-
-const GalleryModel = new mongoose.Schema ({
-  name : {
+const GalleryModel = new mongoose.Schema({
+  name: {
     type: String,
-   }
-  })
+  },
+});
 
 const productSchema = new mongoose.Schema({
+ provider: {type: mongoose.Types.ObjectId, ref: "provider"},
+
   subCategorie: { type: mongoose.Types.ObjectId, ref: "subCategory" },
+  order: {type: mongoose.Types.ObjectId, ref:"order"},
+
   gallery: [GalleryModel],
 
   name: {
@@ -26,4 +28,4 @@ const productSchema = new mongoose.Schema({
   Quantity: { type: Number, required: true },
 });
 
-  module.exports= mongoose.model("product", productSchema)
+module.exports = mongoose.model("product", productSchema);

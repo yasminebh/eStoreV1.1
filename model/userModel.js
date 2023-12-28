@@ -130,7 +130,7 @@ UserSchema.pre('findOneAndUpdate', async function(next) {
     const hashPassword = await bcrypt.hash(newPassword, salt);
    // this.password = hashPassword;
    // await this.save();
-   await this.updateOne({ $set: { password: hashPassword } });
+   await this.updateOne({ $set: { password: hashPassword } }, {new:true});
 
     console.log("Password updated successfully");
 

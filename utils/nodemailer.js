@@ -1,5 +1,4 @@
-
-const dotenv = require('dotenv').config()
+require('dotenv').config()
 const nodemailer = require('nodemailer')
 
 const transporter = nodemailer.createTransport({
@@ -17,7 +16,7 @@ module.exports  = {
 
   verificationMail:  (newAdmin) => {
     transporter.sendMail({
-      from: "yasminebharzallah@gmail.com",
+      from: "yassmin.benharzallah@gmail.com",
       to: newAdmin.email,
       subject: "hello" + newAdmin.fullName,
       text: "mail de confirmation",
@@ -30,7 +29,7 @@ module.exports  = {
       </head>
       <body>
       <h1> hello ${newAdmin.fullName} please verify your account</h1>
-      <a href="http://localhost:5000/user/verifyaccount/${newAdmin.verificationCode}">
+      <a href="http://localhost:5000/user/verifyaccount/${newAdmin.verificationCode}" target="_blank">
         click here
       </a> 
 
@@ -41,7 +40,7 @@ module.exports  = {
 
     forgetPasswordMail:  (newAdmin) => {
       transporter.sendMail({
-        from: "yasminebharzallah@gmail.com",
+        from: "yassmin.benharzallah@gmail.com",
         to: newAdmin.email,
         subject: "hello" + newAdmin.name,
         text: "reset mail",

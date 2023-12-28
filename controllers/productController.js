@@ -2,7 +2,7 @@
 
 const productModel = require('../model/productModel')
 const subCategoryModel = require('../model/subCategory')
-
+const providerModel= require('../model/providerModel')
 module.exports = {
   create : async (req,res) => {
 
@@ -24,7 +24,12 @@ module.exports = {
           product: productNew
         }
       })
-
+      // provider 
+      await providerModel.findByIdAndUpdate(req.body.provider, {
+        $push:{
+          products: productNew
+        }
+      })
       await productNew.save()
    return   res.status(200).json({message:"product created successfully ", data: productNew})
 
@@ -32,7 +37,7 @@ module.exports = {
       res.status(500).json({message:'error'+error, data:null})
     }
   },
-
+// get all product
   getProduct : async (req,res) => {
     
     try {
@@ -64,6 +69,11 @@ module.exports = {
         $pull : {
           product: deletedProduct._id
         }
+      })
+      await providerModel.findByIdAndUpdate(deletedProduct.provider, {
+        $pull: {
+          products: deletedProduct._id
+             }
       })
       res.status(200).json({message:'deleted product', data:product})
     } catch (error) {
