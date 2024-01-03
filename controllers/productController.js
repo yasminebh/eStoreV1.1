@@ -7,11 +7,13 @@ module.exports = {
   create : async (req,res) => {
 
     try {
-      req.body["gallery"] = req.files.length === 0 ? [] : 
-      req.files.map((file) => {
-        console.log(file.filename)
-        return {name: file.filename}
-      })
+      req.body["gallery"] =
+        req.files.length === 0
+          ? []
+          : req.files.map((file) => {
+              console.log(file.filename);
+              return { name: file.filename };
+            });
       //check if the product already exists with the same refference : 
       const existedproduct = await productModel.findOne({ref: req.body.ref})
       if(existedproduct) {

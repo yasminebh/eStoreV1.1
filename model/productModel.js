@@ -7,10 +7,10 @@ const GalleryModel = new mongoose.Schema({
 });
 
 const productSchema = new mongoose.Schema({
- provider: {type: mongoose.Types.ObjectId, ref: "provider"},
+  provider: { type: mongoose.Types.ObjectId, ref: "provider" },
 
   subCategorie: { type: mongoose.Types.ObjectId, ref: "subCategory" },
-  order: {type: mongoose.Types.ObjectId, ref:"order"},
+  order: { type: mongoose.Types.ObjectId, ref: "order" },
 
   gallery: [GalleryModel],
 
@@ -23,7 +23,7 @@ const productSchema = new mongoose.Schema({
     required: true,
     unique: true,
   },
-  Price: { type: Number, required: true },
+  price: { type: Number, required: true },
   description: { type: String },
   Quantity: { type: Number, required: true },
 });
