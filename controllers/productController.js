@@ -43,7 +43,7 @@ module.exports = {
   getProduct : async (req,res) => {
     
     try {
-      const products = await productModel.find().populate({path:"subCategorie", populate:{path:"category", select:'name'} })
+      const products = await productModel.find().populate(["subCategorie","provider"])
        res.status(200).json({message:"products ", data: products})
     } catch (error) {
       res.status(500).json({message: "error"+error, data:null})
@@ -77,7 +77,7 @@ module.exports = {
           products: deletedProduct._id
              }
       })
-      res.status(200).json({message:'deleted product', data:product})
+      res.status(200).json({message:'deleted product', data:null})
     } catch (error) {
       res.status(500).json({message: "error"+error, data:null})
     }
@@ -85,10 +85,11 @@ module.exports = {
 
 updateProduct : async (req,res) => {
 try {
-  req.body['gallery'] = req.files.length === 0 ? []: 
-    req.files.map((f) => (
-        {name: file.filename}
-    ))
+  // req.body['gallery'] = req.files.length === 0 ? []: 
+   req.body["gallery"] =
+     req.files.length === 0
+       ? req.files.filename
+       : req.files.map((file) => ({ name: file.filename }));
   
   const UpdatedProd = await productModel.findByIdAndUpdate(
     { _id: req.params.id },

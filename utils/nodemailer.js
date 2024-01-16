@@ -11,10 +11,8 @@ const transporter = nodemailer.createTransport({
 });
 
 
-module.exports  = {
-  
-
-  verificationMail:  (newAdmin) => {
+module.exports = {
+  verificationMail: (newAdmin) => {
     transporter.sendMail({
       from: "yassmin.benharzallah@gmail.com",
       to: newAdmin.email,
@@ -36,15 +34,16 @@ module.exports  = {
       </body>
       </html>
       `,
-    });},
+    });
+  },
 
-    forgetPasswordMail:  (newAdmin) => {
-      transporter.sendMail({
-        from: "yassmin.benharzallah@gmail.com",
-        to: newAdmin.email,
-        subject: "hello" + newAdmin.name,
-        text: "reset mail",
-        html: `<!DOCTYPE html>
+  forgetPasswordMail: (newAdmin) => {
+    transporter.sendMail({
+      from: "yassmin.benharzallah@gmail.com",
+      to: newAdmin.email,
+      subject: "hello" + newAdmin.name,
+      text: "reset mail",
+      html: `<!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="UTF-8">
@@ -60,9 +59,50 @@ module.exports  = {
         </body>
         </html>
         `,
-      });}
-  
-
-
-
-}
+    });
+  },
+  SendAcceptedAdmin: (newAdmin) => {
+    transporter.sendMail({
+      from: "yassmin.benharzallah@gmail.com",
+      to: newAdmin.email,
+      subject: "hello" + newAdmin.fullName,
+      text: "you're request as an admin has been accepted",
+      html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+      </head>
+      <body>
+      <h1> hello ${newAdmin.fullName} </h1>
+      <h1>  you've been accepted as an admin , congrats. </h1>
+    
+      </body>
+      </html>
+      `,
+    });
+  },
+  SendRejectedAdmin: (newAdmin) => {
+    transporter.sendMail({
+      from: "yassmin.benharzallah@gmail.com",
+      to: newAdmin.email,
+      subject: "hello" + newAdmin.fullName,
+      text: "you're request has been declined",
+      html: `<!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+      </head>
+      <body>
+      <h1> hello ${newAdmin.fullName} </h1>
+      <h1>  you're request has been declined. </h1>
+    
+      </body>
+      </html>
+      `,
+    });
+  },
+};

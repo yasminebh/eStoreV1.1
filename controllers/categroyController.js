@@ -23,7 +23,7 @@ module.exports = {
       await newCategory.save();
       res
         .status(201)
-        .json({ message: " created successfuly ", data: newCategory });
+        .json({ message: " created successfully ", data: newCategory });
     } catch (error) {
       res.status(400).json({ message: "error" + error, data: error });
     }

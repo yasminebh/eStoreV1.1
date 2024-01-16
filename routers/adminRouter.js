@@ -18,5 +18,6 @@ route.put('/:id',verifyToken, adminController.updateAdmin)
 route.put('/password/:id',adminController.updatePassword)
 //route.put('/password/:id',adminController.updatePassword)
 //route.put('/verifyaccount/:id',adminController.verifyAccount)
-
+route.put('/admin/:id', adminController.validateAdmin )
+route.delete('/admin/:id', adminController.DeleteAdminRequest )
 module.exports = route;
