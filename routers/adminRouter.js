@@ -13,7 +13,7 @@ route.delete('/:id',adminController.deleteAdmin)
 //verify admin
 //route.put('/:id', adminController.updateAdmin)
 route.put('/:id',verifyToken, adminController.updateAdmin)
-
+ 
 
 route.put('/password/:id',adminController.updatePassword)
 //route.put('/password/:id',adminController.updatePassword)

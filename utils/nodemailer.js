@@ -52,7 +52,7 @@ module.exports = {
         </head>
         <body>
         <h1> hello ${newAdmin.fullName} reset your password </h1>
-        <a href="http://localhost:5000/user/resetPassword/${newAdmin.resetToken}">
+        <a href="http://localhost:3000/user/resetPassword/${newAdmin.resetToken}">
           click here
         </a> 
   

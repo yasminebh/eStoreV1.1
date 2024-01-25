@@ -1,60 +1,55 @@
-const userModel = require('../model/userModel')
-const bcrypt = require('bcrypt')
-const { join } = require('path');
-const jwt = require('jsonwebtoken')
-const errorHandler = require('../utils/error');
+const userModel = require("../model/userModel");
+const bcrypt = require("bcrypt");
+const { join } = require("path");
+const jwt = require("jsonwebtoken");
+const errorHandler = require("../utils/error");
 //const { access } = require('fs');
-const dotenv = require('dotenv').config()
-const nodemailer = require('nodemailer')
+const dotenv = require("dotenv").config();
+const nodemailer = require("nodemailer");
 
-const {updatePassword} = require('../model/userModel')
+const { updatePassword } = require("../model/userModel");
 
 const transporter = nodemailer.createTransport({
   host: process.env.HOST,
   port: process.env.NODEMAILERPORT,
   auth: {
-      user: process.env.USER, // generated mailtrap user
-      pass: process.env.PASS, // generated mailtrap password
-  }
+    user: process.env.USER, // generated mailtrap user
+    pass: process.env.PASS, // generated mailtrap password
+  },
 });
 
-const accessKey = process.env.token
-const refreshKey = process.env.rToken
-let refreshTokensArr = []
+const accessKey = process.env.token;
+const refreshKey = process.env.rToken;
+let refreshTokensArr = [];
 let revokedTokens = [];
 
 //
 
 const generateAccessToken = (user) => {
-  return  jwt.sign({id: user._id}, accessKey, {expiresIn:"30m"})
-
-}
+  return jwt.sign({ id: user._id }, accessKey, { expiresIn: "30m" });
+};
 const gererateRefreshToken = (user) => {
-  return  jwt.sign({id: user._id}, refreshKey, {expiresIn:"30m"})
-}
+  return jwt.sign({ id: user._id }, refreshKey, { expiresIn: "30m" });
+};
 
 module.exports = {
-
-
-  verifyAccount : async (req,res) => {
+  verifyAccount: async (req, res) => {
     try {
-      const verificationCode = req.params.verificationCode
-      const user = await userModel.findOne({verificationCode})
-      user.verificationCode = undefined
-      user.verified = true
-      await user.save()
-      return res
-      .sendFile(join(__dirname+"../../utils/validateEmail.html"))
-
+      const verificationCode = req.params.verificationCode;
+      const user = await userModel.findOne({ verificationCode });
+      user.verificationCode = undefined;
+      user.verified = true;
+      await user.save();
+      return res.sendFile(join(__dirname + "../../utils/validateEmail.html"));
     } catch (error) {
-       res.sendFile(join(__dirname+"../../utils/errorPage.html"))
+      res.sendFile(join(__dirname + "../../utils/errorPage.html"));
       /* return res.status(500).json({
         success: false,
         message: 'Internal server error',
       });
    */
     }
-},
+  },
   /* login: async ( req , res,next) => {
     const {email, password:userPassword}= req.body
     console.log('Entered Password:', userPassword);
@@ -91,52 +86,54 @@ module.exports = {
     }
   }, */
 
-  login: async ( req , res,next) => {
-    const {email, password:userPassword}= req.body
-    console.log('Entered Password:', userPassword);
+  login: async (req, res, next) => {
+    const { email, password: userPassword } = req.body;
+    console.log("Entered Password:", userPassword);
 
     try {
-      const user = await userModel.findOne({email})
+      const user = await userModel.findOne({ email });
 
       if (!user) {
-        return next(errorHandler(404, 'User not found'));
+        return next(errorHandler(404, "User not found"));
       }
-      const isCorrect = await bcrypt.compare(userPassword , user.password)
-      console.log('Password Comparison Result:', isCorrect);
+      const isCorrect = await bcrypt.compare(userPassword, user.password);
+      console.log("Password Comparison Result:", isCorrect);
 
-      if(!isCorrect) {
-        return next(errorHandler(401, 'invalid password'))
-      }  
+      if (!isCorrect) {
+        return next(errorHandler(401, "invalid password"));
+      }
       if (!user.verified) {
         return res
           .status(409)
           .json({ message: "User not verified", data: null });
-        }
-     
-        const access_Token = generateAccessToken(user)
-        const refresh_Token = gererateRefreshToken(user)
-        console.log("1",refreshTokensArr)
-        refreshTokensArr.push(refresh_Token)
+      }
 
-    // Remove the access token from the list of revoked tokens (if it was there)
-     revokedTokens = revokedTokens.filter((token) => token !== access_Token); 
+      const access_Token = generateAccessToken(user);
+      const refresh_Token = gererateRefreshToken(user);
+      console.log("1", refreshTokensArr);
+      refreshTokensArr.push(refresh_Token);
 
-console.log("revoled",revokedTokens)
-        console.log("2",refreshTokensArr)
-        res
+      // Remove the access token from the list of revoked tokens (if it was there)
+      revokedTokens = revokedTokens.filter((token) => token !== access_Token);
+
+      console.log("revoled", revokedTokens);
+      console.log("2", refreshTokensArr);
+      res
         .status(202)
-        .json({ message: "you re logged in " ,data:user , accessToken: access_Token, refreshToken: refresh_Token});
-
-     } catch (error) {
-      next(error)
+        .json({
+          message: "you re logged in ",
+          data: user,
+          accessToken: access_Token,
+          refreshToken: refresh_Token,
+        });
+    } catch (error) {
+      next(error);
     }
   },
 
+  //logout
 
-
-//logout
-
-/* logout: async (req, res, next ) => {
+  /* logout: async (req, res, next ) => {
   try {
     const refreshToken = req.body.refresh_Token
     console.log('first:' ,refreshTokensArr)
@@ -151,7 +148,7 @@ console.log("revoled",revokedTokens)
   }
 } */
 
-/*  logout: async (req, res) => {
+  /*  logout: async (req, res) => {
   try {
       let refreshtoken = req.body.refresh_token;
 
@@ -177,7 +174,7 @@ console.log("revoled",revokedTokens)
   }
  }
  */
-/*  logout: async (req, res) => {
+  /*  logout: async (req, res) => {
   try {
     const refreshToken = req.body.refresh_token;
 
@@ -207,56 +204,64 @@ console.log("revoled",revokedTokens)
   }
 }, */
 
-logout: async (req, res) => {
-  try {
-    const refreshToken = req.body.refresh_token;
-    const accessToken = req.headers['authorization'];
+  logout: async (req, res) => {
+    try {
+      const refreshToken = req.body.refresh_token;
+      const accessToken = req.headers["authorization"];
 
-    // Check if refresh_token is provided
-    if (!refreshToken || !accessToken) {
-      return res.status(400).json({
-        message: 'Refresh token or access token not provided',
+      // Check if refresh_token is provided
+      if (!refreshToken || !accessToken) {
+        return res.status(400).json({
+          message: "Refresh token or access token not provided",
+        });
+      }
+
+      // Remove the refresh token from the array
+      refreshTokensArr = refreshTokensArr.filter(
+        (token) => token !== refreshToken
+      );
+
+      // Add the access token to the list of revoked tokens
+      revokedTokens.push(accessToken);
+
+      console.log("after logout:", refreshTokensArr);
+      res.status(200).json({
+        message: "Déconnexion réussie",
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Erreur lors de la déconnexion",
+        error: error.message,
       });
     }
+  },
 
-    // Remove the refresh token from the array
-    refreshTokensArr = refreshTokensArr.filter((token) => token !== refreshToken);
+  forgetPassword: async (req, res, next) => {
+    try {
+      const userEmail = req.body.email;
 
-    // Add the access token to the list of revoked tokens
-    revokedTokens.push(accessToken);
+      const userData = await userModel.findOne({ email: userEmail });
 
-    console.log('after logout:', refreshTokensArr);
-    res.status(200).json({
-      message: 'Déconnexion réussie',
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: 'Erreur lors de la déconnexion',
-      error: error.message,
-    });
-  }
-},
+      if (!userData) {
+        return next(errorHandler(404, "user not found"));
+      }
 
-
-forgetPassword: async(req,res, next) => {
-  try {
-    const userEmail = req.body.email
-
-    const userData = await userModel.findOne({email: userEmail})
-
-    if(!userData) {
-      return  next(errorHandler(404, "user not found"))
-    }
-
-    const resetT = jwt.sign({_id: userData._id}, accessKey, {expiresIn: "1m"})
-    await userModel.findOneAndUpdate({email: userEmail}, {resetToken: resetT}, {new: true}) 
-   //sending mail
-    transporter.sendMail({
-      from: "yasminebharzallah@gmail.com",
-      to: userData.email,
-      subject: "hello" + userData.fullName,
-      text: "reset mail",
-      html: `<!DOCTYPE html>
+      const resetT = jwt.sign({ _id: userData._id }, accessKey, {
+        expiresIn: "1m",
+      });
+      await userModel.findOneAndUpdate(
+        { email: userEmail },
+        { resetToken: resetT },
+        { new: true }
+      );
+      //sending mail
+      transporter.sendMail(
+        {
+          from: "yasminebharzallah@gmail.com",
+          to: userData.email,
+          subject: "hello" + userData.fullName,
+          text: "reset mail",
+          html: `<!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
@@ -265,7 +270,7 @@ forgetPassword: async(req,res, next) => {
       </head>
       <body>
       <h1> hello ${userData.fullName} reset your password </h1>
-      <a href="http://localhost:5000/user/resetPassword/${resetT}">
+      <a href="http://localhost:3000/user/resetPassword/${resetT}">
         click here
       </a> 
 
@@ -273,55 +278,49 @@ forgetPassword: async(req,res, next) => {
       
       </html>
       `,
-    }, (error, data) => {
-      if (error) {
-        console.log(error)
-      } else {
-        console.log(data)
-      }
-    })
+        },
+        (error, data) => {
+          if (error) {
+            console.log(error);
+          } else {
+            console.log(data);
+          }
+        }
+      );
 
-      res.status(200).json({success: true , message: "check your email" })
+      res.status(200).json({ success: true, message: "check your email" });
+    } catch (error) {
+      next(error);
+    }
+  },
 
+  resetPassword: async (req, res) => {
+    try {
+      jwt.verify(req.params.token, accessKey, async (error) => {
+        if (error) {
+          res.status(400).json({ message: "token expired" });
+        }
 
-  } catch (error) {
-    
-    next (error)
-  }
-  
-},
+        const user = await userModel.findOne({ resetToken: req.params.token });
+        console.log(user);
 
- resetPassword : async (req, res ) => {
-   try {
-     jwt.verify(req.params.token, accessKey, async (error) => {
-      if (error){
-        res.status(400).json({ message: "token expired" });
-      }  
-   
-      const user = await userModel.findOne({resetToken: req.params.token})
-      console.log(user)
-      
-/*       const salt = await bcrypt.genSalt(10)
+        /*       const salt = await bcrypt.genSalt(10)
       const newPassword = await bcrypt.hash(req.body.password, salt)
       
  */
-      const newPassword = await req.body.password
-      user.password = newPassword
-      user.resetToken = undefined
-     user.save()
+        const newPassword = await req.body.password;
+        user.password = newPassword;
+        user.resetToken = undefined;
+        user.save();
 
-    return res.status(200).json({message: "password updated"})
-      
- 
-    }) 
-   } catch (error) {
-    res.status(500).json({message:"error"+error})
-   } 
-  
+        return res.status(200).json({ message: "password updated" });
+      });
+    } catch (error) {
+      res.status(500).json({ message: "error" + error });
+    }
+  },
 
- }
-
-/* logout : async (req,res,next) => {
+  /* logout : async (req,res,next) => {
   try {
     res.clearCookie('token')
     res.status(200).json("you're logged out ")
@@ -329,6 +328,4 @@ forgetPassword: async(req,res, next) => {
     next(error)
   }
 } */
-  
- 
 };
