@@ -19,7 +19,7 @@ const customerSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    required: [true, "image is required"]
+   // required: [true, "image is required"]
   }
 
 });

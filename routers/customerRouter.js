@@ -6,7 +6,8 @@ const customerController = require('../controllers/customerController')
 route.get('/', customerController.getCustomer)
 route.get('/:id', customerController.getOneCustomer)
 route.delete('/:id', customerController.deleteCustomer)
-route.post('/',uploadFiles.single('image') ,customerController.createCustomer)
+//route.post('/',uploadFiles.single('image') ,customerController.createCustomer)
+route.post('/',customerController.createCustomer)
 route.put('/:id',uploadFiles.single('image'), customerController.updateCustomer)
 
 

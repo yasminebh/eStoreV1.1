@@ -20,6 +20,7 @@ module.exports = {
       });
       console.log(newAdmin);
       await newAdmin.save();
+      
 
       //  verificationMail(newAdmin)
       res
@@ -215,6 +216,10 @@ module.exports = {
   validateAdmin: async (req, res) => {
     try {
       const adminId = req.params.id;
+
+    const adminverif = await adminModel.findById(adminId)
+    if (adminverif.isAccepted === false) {
+
       const adminData = await adminModel.findByIdAndUpdate(
         adminId,
         { isAccepted: true },
@@ -223,7 +228,8 @@ module.exports = {
 
       SendAcceptedAdmin(adminData);
 
-      res.status(200).json({ message: "admin accepted", data: adminData });
+       res.status(200).json({ message: "admin accepted", data: adminData });
+    }
     } catch (error) {
       res.status(500).json({ message: "error" + error, data: null });
     }
@@ -244,4 +250,13 @@ module.exports = {
       res.status(500).json({ message: "err" + error, data: null });
     }
   },
+
+  IsSuperAdmin : async ( req ,res ) => {
+    
+    try {
+      
+    } catch (error) {
+      
+    }
+  }
 };
